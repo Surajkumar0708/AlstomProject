@@ -9,18 +9,20 @@ import {
 import {fetchAlbums} from '../api/albums';
 import AlbumCard from '../components/albumCard';
 import {Album} from '../types';
+import {useNetInfo} from '@react-native-community/netinfo';
 
 const DashboardScreen = ({navigation}: any) => {
   const [albums, setAlbums] = React.useState<Album[]>([]);
   const [isLoading, setIsLoading] = React.useState<Boolean>(true);
+  const {isConnected = false} = useNetInfo();
 
   React.useEffect(() => {
     (async () => {
-      const res = await fetchAlbums();
+      const res = await fetchAlbums(isConnected);
       setAlbums(res);
       setIsLoading(false);
     })();
-  }, []);
+  }, [isConnected]);
 
   if (isLoading) {
     return (
@@ -31,7 +33,7 @@ const DashboardScreen = ({navigation}: any) => {
     );
   }
 
-  if (albums.length === 0) {
+  if (albums?.length === 0) {
     return (
       <View style={styles.center}>
         <Text>
