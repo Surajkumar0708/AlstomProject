@@ -10,10 +10,12 @@ import {fetchAlbums} from '../api/albums';
 import AlbumCard from '../components/albumCard';
 import {Album} from '../types';
 import {useNetInfo} from '@react-native-community/netinfo';
+import Toast from '../components/toast';
 
 const DashboardScreen = ({navigation}: any) => {
   const [albums, setAlbums] = React.useState<Album[]>([]);
-  const [isLoading, setIsLoading] = React.useState<Boolean>(true);
+  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  const [showToast, setShowToast] = React.useState<boolean>(false);
   const {isConnected = false} = useNetInfo();
 
   React.useEffect(() => {
@@ -24,11 +26,17 @@ const DashboardScreen = ({navigation}: any) => {
     })();
   }, [isConnected]);
 
+  React.useEffect(() => {
+    if (!isConnected) {
+      setShowToast(true);
+    }
+  }, [isConnected]);
+
   if (isLoading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="black" />
+        <Text style={styles.textColor}>Loading...</Text>
       </View>
     );
   }
@@ -36,7 +44,7 @@ const DashboardScreen = ({navigation}: any) => {
   if (albums?.length === 0) {
     return (
       <View style={styles.center}>
-        <Text>
+        <Text style={styles.textColor}>
           No albums available offline. Please connect to the internet and try
           again.
         </Text>
@@ -45,19 +53,29 @@ const DashboardScreen = ({navigation}: any) => {
   }
 
   return (
-    <FlatList
-      data={albums}
-      keyExtractor={item => item.collectionId.toString()}
-      renderItem={({item}: {item: Album}) => (
-        <AlbumCard
-          album={item}
-          onPress={() => navigation.navigate('AlbumDetails', {album: item})}
-        />
-      )}
-      ListEmptyComponent={
-        <Text style={{padding: 20}}>No Albums Available</Text>
-      }
-    />
+    <React.Fragment>
+      <Toast
+        show={showToast}
+        message="No internet connection"
+        onHide={() => setShowToast(false)}
+      />
+      <FlatList
+        testID="albumList"
+        data={albums}
+        keyExtractor={item => item.collectionId.toString()}
+        renderItem={({item}: {item: Album}) => (
+          <AlbumCard
+            album={item}
+            onPress={() => navigation.navigate('AlbumDetails', {album: item})}
+          />
+        )}
+        ListEmptyComponent={
+          <Text style={[{padding: 20}, styles.textColor]}>
+            No Albums Available
+          </Text>
+        }
+      />
+    </React.Fragment>
   );
 };
 
@@ -67,6 +85,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
+  },
+  textColor: {
+    color: 'black',
   },
 });
 

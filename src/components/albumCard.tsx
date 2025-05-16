@@ -11,7 +11,7 @@ const AlbumCard = ({album, onPress}: AlbumCardProps) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <Image source={{uri: album.artworkUrl100}} style={styles.thumbnail} />
-      <Text numberOfLines={2} ellipsizeMode="tail">
+      <Text style={styles.description} numberOfLines={2} ellipsizeMode="tail">
         {album.collectionName}
       </Text>
     </TouchableOpacity>
@@ -30,5 +30,8 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     marginRight: 10,
+  },
+  description: {
+    color: 'black',
   },
 });
